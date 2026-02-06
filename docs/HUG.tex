@@ -1,0 +1,448 @@
+\documentclass[11pt]{article}
+
+% --- PACCHETTI ---
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[italian]{babel}
+\usepackage{graphicx}
+\usepackage{geometry}
+\usepackage{xcolor}
+\usepackage{changepage}
+\usepackage{titlesec}
+\usepackage{fancyhdr} % Per l'intestazione personalizzata
+\usepackage{float}
+\usepackage[none]{hyphenat}
+\usepackage{parskip}
+\usepackage[colorlinks=true,
+    linkcolor=black, % L'indice resta nero
+    urlcolor=black,   % I link web diventano blu
+    citecolor=black]{hyperref}
+\usepackage{color}
+
+\geometry{top=2.5cm, bottom=2.5cm, left=2.5cm, right=2.5cm, headheight=40pt}
+
+% --- DEFINIZIONE COLORI ---
+\definecolor{HUGPurple}{HTML}{AE4FDD}
+
+% --- CONFIGURAZIONE INTESTAZIONE (HEADER) ---
+\pagestyle{fancy}
+\fancyhf{} % Pulisce header e footer precedenti
+
+% 1. Logo a sinistra (Dip-Inf)
+\lhead{\includegraphics[height=1.2cm]{images/dip-Inf.png}}
+
+% 2. Testo a destra (Laurea e Prof. Palomba)
+\rhead{\footnotesize
+Laurea Triennale in Informatica - Università di Salerno \\
+Corso di Machine Learning - Prof. G. Polese - Prof.ssa L. Caruccio}
+
+% 3. Numero di pagina in basso al centro
+\cfoot{\thepage}
+
+\fancypagestyle{plain}{
+    \fancyhf{}
+    \lhead{\includegraphics[height=1.2cm]{images/dip-Inf.png}}
+    \rhead{\footnotesize Laurea Triennale in Informatica - Università di Salerno \\ Corso di Machine Learning - Prof. G. Polese - Prof.ssa L. Caruccio}
+    \cfoot{\thepage}
+}
+
+% --- INIZIO DOCUMENTO ---
+\begin{document}
+
+    % ==========================================
+    %               COPERTINA
+    % ==========================================
+    \begin{titlepage}
+        \thispagestyle{empty}
+        \centering
+
+        % Testo Istituzionale (Come nella versione originale)
+        \Large UNIVERSITÀ DEGLI STUDI DI SALERNO \\[0.5cm]
+        \Large Corso di Laurea in Informatica \\
+        \Large Machine Learning \\[1cm]
+
+        \includegraphics[width=0.5\textwidth]{images/logo-HUG} \\[0.4cm]
+
+        % Titolo Progetto
+        \Huge \textbf{HUG}\\[0.5cm]
+
+        % Autori
+        \Large
+        \textbf{Gruppo di Progetto:} \\[0.5cm]
+        Andrea Generale (Mat. 0512119134) \\[0.3cm]
+        Samuele Nacchia (Mat. 0512119128) \\[0.8cm]
+
+        % Link al repository
+        \large
+        \textbf{Link al repository:} \href{https://github.com/samueleNacchia/HUG}{https://github.com/samueleNacchia/HUG} \\[0.8cm]
+
+        % Logo Unisa in basso
+        \includegraphics[width=0.2\textwidth]{images/unisa}
+
+        \vfill
+        \large Anno Accademico 2025/2026
+    \end{titlepage}
+
+    \newpage
+
+    % ==========================================
+    %               INDICE
+    % ==========================================
+    \tableofcontents
+    \newpage
+
+    % ==========================================
+    %               CONTENUTO
+    % ==========================================
+
+    \section{Introduzione}
+
+        Il benessere psicologico degli studenti universitari rappresenta una tematica di crescente rilevanza nel
+        panorama accademico e sanitario. Il percorso universitario, spesso caratterizzato da elevate pressioni
+        performative, transizioni sociali significative e incertezza verso il futuro, costituisce una fase critica
+        che può favorire l'insorgenza di disturbi dell'umore, tra cui la depressione.\newline
+        Tale disagio, se trascurato, può aggravarsi fino a livelli insostenibili, portando nei casi più drammatici a
+        gesti estremi.
+
+
+    \subsection{Sistema attuale}
+
+        Attualmente, l’individuazione di studenti universitari a rischio di depressione avviene
+        principalmente tramite autosegnalazione o osservazioni indirette da parte di docenti e tutor.\newline
+        I servizi di supporto psicologico operano in maniera reattiva, intervenendo solo quando il disagio è
+        già esplicitamente manifestato. Non sono presenti strumenti automatici di analisi o predizione basati sui dati,
+        rendendo difficile un’identificazione precoce e sistematica degli studenti potenzialmente vulnerabili.
+
+
+    \subsection{Obiettivi}
+
+        Il sistema HUG - Health Understanding Guide è stato progettato con l’obiettivo
+        di fornire un supporto proattivo nella rilevazione precoce della depressione tra gli studenti universitari,
+        al fine di favorire interventi tempestivi e mirati da parte dell'università e degli psicologi dell'ateneo.
+        HUG è un alleato nel monitoraggio del benessere psicologico, ma non sostituisce il lavoro degli esperti.
+        Il sistema non ha l'intento di diagnosticare o curare la depressione, ma piuttosto di identificare segnali di
+        rischio che possano indicare uno stato di disagio emotivo o mentale, permettendo una valutazione iniziale
+        della salute psicologica degli studenti.
+
+
+    % ------------------------------------------
+
+    \newpage
+
+    \section{Descrizione agente}
+    Il sistema \textit{HUG} è modellato come un agente intelligente di tipo
+    \textbf{classificatore}, progettato per supportare l’individuazione precoce
+    di potenziali stati di disagio psicologico negli studenti universitari.
+    L’agente analizza le risposte fornite dagli studenti tramite questionari
+    psicologici strutturati e produce una valutazione automatica del rischio
+    di sintomi depressivi.
+
+    \subsection{Specifica PEAS}
+        Di seguito è riportata la descrizione PEAS dell'ambiente operativo in forma tabellare.
+
+        \begin{table}[H]
+            \centering
+            \renewcommand{\arraystretch}{1.5} % Spaziatura righe
+            \begin{tabular}{|l|p{10cm}|}
+                \hline
+                \textbf{Componente} & \textbf{Descrizione} \\
+                \hline
+                \textbf{Performance} & La misura di performance del sistema si basa sulla capacità
+                                       dell'agente di distinguere correttamente studenti inclini alla
+                                       depressione e studenti non inclini, con particolare attenzione
+                                       all'identificazione accurata della classe Depressione=True. \\
+
+                \hline
+                \textbf{Environment} & L'ambiente consiste negli studenti universitari, i quali
+                                       completano un questionario psicologico per valutare il loro benessere emotivo. \\
+
+                \hline
+                \textbf{Actuators} & Gli attuatori consistono in un sistema di classificazione che
+                                     assegna un'etichetta (\("\)Rischio Depressione Rilevato\("\) o \("\)Nessun Rischio Rilevato\("\)) e segnala
+                                     gli studenti identificati come a rischio con una panoramica chiara dei diversi report.
+                                     Questi attuatori permettono di attivare interventi per supportare gli studenti. \\
+
+                \hline
+                \textbf{Sensors} & I sensori consistono nelle risposte al questionario psicologico
+                                   fornito dagli studenti, che vengono analizzate dal sistema. \\
+                \hline
+            \end{tabular}
+            \caption{Specifica PEAS dell'agente HUG}\label{tab:table}
+        \end{table}
+
+
+    \subsection{Specifiche dell'ambiente}
+
+        L’ambiente operativo in cui agisce il sistema \textit{HUG}
+        è costituito dall’insieme dei dati relativi agli studenti universitari, provenienti da questionari
+        autocompilati. Il modello di machine learning interagisce con tale ambiente analizzando i dati disponibili
+        al fine di stimare la presenza o meno del rischio di disagio psicologico.
+
+        L’ambiente di HUG può essere classificato come segue:
+
+        \begin{itemize}
+            \item \textbf{Parzialmente osservabile}:
+            l’agente non ha accesso diretto allo stato psicologico reale dello studente, ma solo a informazioni
+            indirette e parziali, spesso soggettive e rumorose, come risposte a questionari.
+            Di conseguenza, lo stato dell’ambiente non è completamente osservabile.
+
+            \item \textbf{Non deterministico}:
+            la relazione tra i dati osservabili e il reale stato emotivo dello studente non è deterministica.
+            A parità di input possono corrispondere stati psicologici differenti, a causa di fattori esterni
+            non completamente modellabili e dell’elevata variabilità individuale.
+
+            \newpage
+            \item \textbf{Episodico}:
+            ogni valutazione prodotta dal sistema è indipendente dalle precedenti.\newline Il modello analizza le
+            osservazioni raccolte in un determinato istante temporale senza mantenere uno stato interno che
+            tenga traccia delle valutazioni passate. Ciascun episodio corrisponde pertanto a una singola
+            compilazione del questionario, e la decisione non influenza né dipende da episodi futuri.
+
+            \item \textbf{Statico}:
+            durante l’elaborazione dei dati relativi a una singola compilazione del questionario, l’ambiente
+            non cambia: le percezioni fornite all’agente e lo stato interno considerato restano invariati fino al
+            termine dell’analisi. Eventuali variazioni nello stato emotivo dello studente o nei dati disponibili
+            si verificano solo tra episodi distinti, e non influenzano il processo decisionale in corso.
+
+            \item \textbf{Discreto}:
+            poiché il sistema produce esclusivamente una classificazione binaria e opera su percezioni,
+            stati e azioni discreti
+
+            \item \textbf{Singolo agente}:
+            il sistema HUG opera come agente singolo e non interagisce direttamente con altri agenti
+            intelligenti. Esso fornisce supporto decisionale a figure umane quali psicologi e servizi di
+            supporto universitari, che rimangono responsabili degli interventi finali.
+        \end{itemize}
+
+    % ------------------------------------------
+
+    \section{Individuazione dataset }
+    Nella fase iniziale del progetto, sono state valutate due diverse strategie per l'acquisizione dei
+    dati necessari all'addestramento del modello di Machine Learning:
+    \begin{enumerate}
+        \item \textbf{Creare} un dataset da zero, sottoponendo un questionario ad un campione di studenti;
+
+        \item \textbf{Cercare} sulla rete un dataset già formato,
+                    e adeguarlo alle nostre esigenze;
+
+    \end{enumerate}
+
+    Dopo un'analisi comparativa, la prima opzione è stata scartata a causa di limitazioni metodologiche
+    critiche. In primo luogo, la raccolta di un numero di campioni statisticamente significativo avrebbe
+    richiesto tempi eccessivamente lunghi.
+
+    Tuttavia, l'ostacolo principale è rappresentato dalla \textbf{mancanza di un esperto di dominio}.\newline
+    Per addestrare un modello di classificazione accurato, ogni record deve essere etichettato correttamente
+    (es. "Depresso: Sì/No"). Senza la supervisione di un professionista in grado di valutare clinicamente
+    le risposte dei candidati, il dataset prodotto sarebbe risultato privo di validità scientifica,
+    rendendo il modello inaffidabile.
+
+    Di conseguenza, si è deciso di procedere con la seconda soluzione, individuando sulla
+    piattaforma \textbf{Kaggle} il dataset: \href{https://www.kaggle.com/datasets/adilshamim8/student-depression-dataset/data}{\textcolor{blue}{\underline{\textit{"Student Depression Dataset"}}}}
+
+
+
+    \subsection{Punti di forza del dataset}
+    La scelta è ricaduta su questo archivio per i seguenti motivi:
+    \begin{itemize}
+        \item \textbf{Varietà dei parametri:}
+            Include fattori determinanti come la pressione accademica,
+            la soddisfazione nello studio, le ore di sonno e la storia clinica familiare.
+        \item \textbf{Ampiezza dei dati:} Le migliaia di osservazioni forniscono una base solida
+            per l'addestramento, permettendo all'algoritmo di riconoscere pattern complessi con
+            maggiore precisione.
+    \end{itemize}
+
+    % ------------------------------------------
+
+    \subsection{Limiti del dataset}
+    Tale dataset presenta i seguenti limiti:
+    \begin{itemize}
+
+        \item
+        \textbf{Provenienza culturale}: Il dataset proviene da studenti indiani, e le esperienze psicologiche e
+        comportamentali potrebbero differire da quelle degli studenti italiani, influenzando i risultati.
+
+        \item
+        \textbf{Fattori socio-culturali e accademici}: Sebbene il dataset descriva variabili psicologiche e
+        comportamentali legate alla vita universitaria (che non sono specifiche di un singolo contesto nazionale),
+        le dinamiche socio-culturali e accademiche in India potrebbero comunque influenzare la rilevazione del rischio di depressione.
+
+        \item
+        \textbf{Validità limitata}: Senza una validazione su dati italiani, il modello potrebbe non riflettere
+        accuratamente il rischio di depressione tra gli studenti italiani.
+
+    \end{itemize}
+
+    Sebbene il dataset quindi sia stato raccolto su studenti indiani, le informazioni disponibili
+    descrivono aspetti psicologici e comportamentali legati alla vita universitaria che non sono
+    specifici di un singolo contesto nazionale. Il modello viene pertanto utilizzato come studio
+    preliminare per valutare la fattibilità di un sistema predittivo del rischio di depressione,
+    riconoscendo che una validazione su dati italiani reali sarebbe necessaria per un impiego operativo.
+
+
+% ==========================================
+%          DATA UNDERSTANDING
+% ==========================================
+    \section{Data Understanding}
+
+    Prima di procedere con le  fasi di preparazione dei dati, è stata svolta una fase di \textit{data understanding},
+    con l’obiettivo di comprendere la struttura del dataset, il significato delle variabili e la loro coerenza con il
+    dominio applicativo del sistema.
+
+    In questa fase sono state analizzate tutte le colonne del dataset, identificandone il ruolo e il tipo di
+    informazione rappresentata. In particolare, le variabili sono state suddivise nelle seguenti categorie:
+
+    \begin{itemize}
+        \item \textbf{Variabili demografiche}: \textit{Gender}, \textit{Age};
+        \item \textbf{Variabili psicologiche e autovalutative}: \textit{Academic Pressure}, \textit{Work Pressure}, \textit{Study Satisfaction}, \textit{Job Satisfaction}, \textit{Have you ever had suicidal thoughts?}, \textit{Family History of Mental Illness}, \textit{Financial Stress};
+        \item \textbf{Variabili di contesto accademico e personale}: \textit{Degree}, \textit{Profession}, \textit{Work/Study Hours}, \textit{CGPA}, \textit{Sleep Duration}, \textit{Dietary Habits}, \textit{City}.
+    \end{itemize}
+
+    È stata inoltre individuata la variabile target del problema di classificazione, identificata nella colonna
+    \textit{Depression}, che rappresenta se lo studente è a rischio di depressione.
+
+    \paragraph{Descrizione semantica delle variabili}
+
+    La Tabella~\ref{tab:semantic_features} riporta una breve descrizione semantica delle variabili presenti nel
+    dataset, al fine di chiarirne il significato e il ruolo nel contesto del problema affrontato.
+
+    \begin{table}[H]
+        \centering
+        \begin{tabular}{|l|p{10cm}|}
+            \hline
+            \textbf{Variabile} & \textbf{Descrizione semantica} \\
+            \hline
+            Gender & Genere dichiarato dallo studente. \\
+            Age & Età dello studente espressa in anni. \\
+            Academic Pressure & Livello di pressione percepita legata alle attività accademiche. \\
+            Work Pressure & Livello di pressione percepita legata alle attività lavorative. \\
+            Study Satisfaction & Livello di soddisfazione dello studente rispetto allo studio. \\
+            Job Satisfaction & Livello di soddisfazione rispetto ad attività lavorative. \\
+            CGPA & Media accademica di tutti i voti ottenuti nel percorso di studi. \\
+            Work/Study Hours & Numero medio di ore dedicate quotidianamente a studio e lavoro. \\
+            Sleep Duration & Durata media del sonno giornaliero dichiarata. \\
+            Dietary Habits & Indicatore delle abitudini alimentari dichiarate. \\
+            Degree & Livello di istruzione dichiarato dallo studente. \\
+            Financial Stress & Livello di stress percepito legato alla situazione finanziaria. \\
+            Have you ever had suicidal thoughts? & Indicatore della presenza di pensieri suicidari auto-riferiti. \\
+            Family History of Mental Illness & Presenza di precedenti familiari di disturbi mentali. \\
+            Profession & Stato occupazionale dichiarato (nel dataset: Student). \\
+            City & Città di residenza dichiarata dallo studente. \\
+            Depression & Variabile target che indica la presenza o assenza di depressione. \\
+            \hline
+        \end{tabular}
+        \caption{Descrizione semantica delle variabili del dataset}
+        \label{tab:semantic_features}
+    \end{table}
+
+    Questa fase di data understanding ha consentito di validare la coerenza del dataset rispetto all’obiettivo
+    del sistema e di impostare correttamente l’analisi preliminare e le successive fasi di preparazione dei dati,
+    senza introdurre modifiche al dataset originale.
+
+
+
+
+
+
+    \subsection{Analisi preliminare del dataset}
+    L’analisi preliminare del dataset per comprenderne la struttura e le principali caratteristiche statistiche
+    si è concentrata su:
+
+    \begin{itemize}
+        \item controllo del bilanciamento dei dati.
+        \item calcolo della dipendenza delle feature numeriche e categoriche dalla variabile target \textit{Depression};
+        \item analisi delle distribuzioni delle feature numeriche e categoriche per identificare variabili sbilanciate o a bassa variabilità.
+        \item identificazione di possibili data leakage.
+    \end{itemize}
+
+    \newpage
+
+    \paragraph{Bilanciamento dei dati}
+    La Tabella~\ref{tab:class_distribution_depression_pct} riporta la distribuzione delle osservazioni tra le due classi della variabile
+    target \textit{Depression}, da cui si osserva un moderato sbilanciamento a favore della classe positiva.
+    \begin{table}[h]
+        \centering
+        \caption{Distribuzione delle classi della variabile target \textit{Depression}}
+        \label{tab:class_distribution_depression_pct}
+        \begin{tabular}{lcc}
+            \hline
+            \textbf{Classe} & \textbf{Numero di elementi} & \textbf{Percentuale (\%)} \\
+            \hline
+            Depressi (1)      & 16336 & 58.55 \\
+            Non depressi (0)  & 11565 & 41.45 \\
+            \hline
+            Totale            & 27901 & 100.00 \\
+            \hline
+        \end{tabular}
+    \end{table}
+
+
+
+    \paragraph{Dipendenza dalla variabile target}
+
+    Per le feature numeriche, è stata calcolata la correlazione di Pearson con la variabile target.
+    Per le feature categoriche, la dipendenza è stata stimata come la massima differenza
+    tra le percentuali di studenti depressi e non depressi all'interno delle categorie di ciascuna variabile.
+    In altre parole, indica quanto la presenza di una determinata categoria sia associata allo stato di depressione.
+
+    I risultati principali sono i seguenti:
+
+    \textbf{Correlazione delle feature numeriche con la target \textit{Depression}:}
+    \begin{itemize}
+        \item Academic Pressure: 0.475
+        \item Age: -0.226
+        \item Work/Study Hours: 0.209
+        \item Study Satisfaction: -0.168
+        \item CGPA: 0.022
+        \item Job Satisfaction: -0.003
+        \item Work Pressure: -0.003
+        \item id: 0.001
+    \end{itemize}
+
+    \textbf{Correlazione delle feature categoriche con la target \textit{Depression}:}
+    \begin{itemize}
+        \item City: 1.000
+        \item Profession: 1.000
+        \item Financial Stress: 0.626
+        \item Have you ever had suicidal thoughts ?: 0.581
+        \item Degree: 0.415
+        \item Dietary Habits: 0.415
+        \item Sleep Duration: 0.290
+        \item Family History of Mental Illness: 0.225
+        \item Gender: 0.173
+    \end{itemize}
+
+    \paragraph{Analisi delle distribuzioni}
+
+    Per ciascuna feature, oltre a valutare la correlazione o la dipendenza dalla target, è stata analizzata la distribuzione dei valori:
+
+    \begin{itemize}
+        \item \textbf{Feature numeriche}: sono state calcolate media, deviazione standard, skewness e kurtosis.
+        Feature con skew > 1, kurtosis > 5 o deviazione standard molto bassa (<0.01) sono state considerate \textit{anomale},
+        poiché potrebbero non fornire informazioni significative al modello.
+        \item \textbf{Feature categoriche}: sono state valutate la numerosità delle categorie e la distribuzione percentuale.
+        Variabili con una sola categoria o con una categoria dominante (>90\%) sono considerate sbilanciate e poco informative.
+    \end{itemize}
+
+    \paragraph{Data leakage}
+    Al fine di verificare la presenza di potenziali fenomeni di data leakage, è stata analizzata separatamente la feature
+    \textit{Have you ever had suicidal thoughts ?} tramite una tabella di contingenza normalizzata rispetto alla variabile
+    target \textit{Depression}. I risultati mostrano una dipendenza estremamente marcata tra le due variabili, suggerendo che la
+    feature possa fornire informazione quasi deterministica sulla classe target.
+
+    \begin{table}[h]
+        \centering
+        \caption{Distribuzione percentuale della variabile \textit{Depression} in funzione della feature \textit{Have you ever had suicidal thoughts ?}}
+        \label{tab:suicidal_thoughts_depression_pct}
+        \begin{tabular}{lcc}
+            \hline
+            \textbf{Have you ever had suicidal thoughts ?} & \textbf{Depression = 0 (\%)} & \textbf{Depression = 1 (\%)} \\
+            \hline
+            No  & 76.8 & 23.2 \\
+            Yes & 21.0 & 79.0 \\
+            \hline
+        \end{tabular}
+    \end{table}
+
+\end{document}

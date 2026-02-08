@@ -31,7 +31,6 @@
 % 1. Logo a sinistra (Dip-Inf)
 \lhead{\includegraphics[height=1.2cm]{images/dip-Inf.png}}
 
-% 2. Testo a destra (Laurea e Prof. Palomba)
 \rhead{\footnotesize
 Laurea Triennale in Informatica - Università di Salerno \\
 Corso di Machine Learning - Prof. G. Polese - Prof.ssa L. Caruccio}
@@ -138,37 +137,37 @@ Corso di Machine Learning - Prof. G. Polese - Prof.ssa L. Caruccio}
     di sintomi depressivi.
 
     \subsection{Specifica PEAS}
-        Di seguito è riportata la descrizione PEAS dell'ambiente operativo in forma tabellare.
+    Di seguito è riportata la descrizione PEAS dell'ambiente operativo in forma tabellare.
 
-        \begin{table}[H]
-            \centering
-            \renewcommand{\arraystretch}{1.5} % Spaziatura righe
-            \begin{tabular}{|l|p{10cm}|}
-                \hline
-                \textbf{Componente} & \textbf{Descrizione} \\
-                \hline
-                \textbf{Performance} & La misura di performance del sistema si basa sulla capacità
-                                       dell'agente di distinguere correttamente studenti inclini alla
-                                       depressione e studenti non inclini, con particolare attenzione
-                                       all'identificazione accurata della classe Depressione=True. \\
+    \begin{table}[H]
+        \centering
+        \renewcommand{\arraystretch}{1.5} % Spaziatura righe
+        \begin{tabular}{|l|p{10cm}|}
+            \hline
+            \textbf{Componente} & \textbf{Descrizione} \\
+            \hline
+            \textbf{Performance} & La misura di performance del sistema si basa sulla capacità
+                                   dell'agente di distinguere correttamente studenti inclini alla
+                                   depressione e studenti non inclini, con particolare attenzione
+                                   all'identificazione accurata della classe Depressione=True. \\
 
-                \hline
-                \textbf{Environment} & L'ambiente consiste negli studenti universitari, i quali
-                                       completano un questionario psicologico per valutare il loro benessere emotivo. \\
+            \hline
+            \textbf{Environment} & L'ambiente consiste negli studenti universitari, i quali
+                                   completano un questionario psicologico per valutare il loro benessere emotivo. \\
 
-                \hline
-                \textbf{Actuators} & Gli attuatori consistono in un sistema di classificazione che
-                                     assegna un'etichetta (\("\)Rischio Depressione Rilevato\("\) o \("\)Nessun Rischio Rilevato\("\)) e segnala
-                                     gli studenti identificati come a rischio con una panoramica chiara dei diversi report.
-                                     Questi attuatori permettono di attivare interventi per supportare gli studenti. \\
+            \hline
+            \textbf{Actuators} & Gli attuatori consistono in un sistema di classificazione che
+                                 assegna un'etichetta (\("\)Rischio Depressione Rilevato\("\) o \("\)Nessun Rischio Rilevato\("\)) e segnala
+                                 gli studenti identificati come a rischio con una panoramica chiara dei diversi report.
+                                 Questi attuatori permettono di attivare interventi per supportare gli studenti. \\
 
-                \hline
-                \textbf{Sensors} & I sensori consistono nelle risposte al questionario psicologico
-                                   fornito dagli studenti, che vengono analizzate dal sistema. \\
-                \hline
-            \end{tabular}
-            \caption{Specifica PEAS dell'agente HUG}\label{tab:table}
-        \end{table}
+            \hline
+            \textbf{Sensors} & I sensori consistono nelle risposte al questionario psicologico
+                               fornito dagli studenti, che vengono analizzate dal sistema. \\
+            \hline
+        \end{tabular}
+        \caption{Specifica PEAS dell'agente HUG}\label{tab:table}
+    \end{table}
 
 
     \subsection{Specifiche dell'ambiente}
@@ -241,6 +240,7 @@ Corso di Machine Learning - Prof. G. Polese - Prof.ssa L. Caruccio}
     piattaforma \textbf{Kaggle} il dataset: \href{https://www.kaggle.com/datasets/adilshamim8/student-depression-dataset/data}{\textcolor{blue}{\underline{\textit{"Student Depression Dataset"}}}}
 
 
+    \newpage
 
     \subsection{Punti di forza del dataset}
     La scelta è ricaduta su questo archivio per i seguenti motivi:
@@ -339,9 +339,6 @@ Corso di Machine Learning - Prof. G. Polese - Prof.ssa L. Caruccio}
     Questa fase di data understanding ha consentito di validare la coerenza del dataset rispetto all’obiettivo
     del sistema e di impostare correttamente l’analisi preliminare e le successive fasi di preparazione dei dati,
     senza introdurre modifiche al dataset originale.
-
-
-
 
 
 
@@ -444,5 +441,145 @@ Corso di Machine Learning - Prof. G. Polese - Prof.ssa L. Caruccio}
             \hline
         \end{tabular}
     \end{table}
+
+    \section{Data preparation}
+
+    La preparazione del dataset è stata fatta con lo scopo di mantiene alcune variabili di contesto accademico,
+    introducendo trasformazioni controllate volte a migliorarne l’interpretabilità e la trasferibilità
+    nel contesto universitario di riferimento. In particolare, tale preparazione consente di analizzare
+    l’effetto di una rappresentazione più informata dei dati, pur senza introdurre assunzioni forti o
+    modifiche che alterino il significato originale delle informazioni.
+
+
+    \subsection{Data cleaning}
+    La fase di \textit{data cleaning} è finalizzata a rimuovere elementi potenzialmente dannosi per il processo
+    di apprendimento del modello, con l’obiettivo di migliorare la qualità e l’affidabilità complessiva del dataset.
+    Sono state eliminate le feature
+
+    \begin{itemize}
+        \item \textit{id}: attributo identificativo degli studenti, irrilevante per la predizione del rischio di depressione
+        \item \textit{Have you ever had suicidal thoughts?}: considerata la natura semantica della feature,
+        che rappresenta un sintomo clinico direttamente associato alla depressione e il rischio di performance
+        artificialemnte gonfiate, la variabile è stata identificata come leaky predictor ed esclusa dalla fase di modellazione.
+    \end{itemize}
+
+
+    \paragraph{Valori nulli}
+    Dall’ispezione del dataset non sono emerse
+    osservazioni con valori nulli, pertanto non si è resa necessaria alcuna operazione di imputazione o rimozione
+    di record incompleti.
+
+    \paragraph{Osservazioni duplicate}
+    Anche in questo caso,
+    non sono state individuate righe duplicate, confermando la coerenza e l’unicità delle istanze presenti nel dataset.
+
+    \paragraph{Outlier}
+    È stata inoltre condotta un’analisi dei valori anomali (\textit{outlier}) sulle variabili numeriche mediante
+    il metodo dell’\textit{Interquartile Range} (IQR). Tale analisi ha evidenziato la presenza di 22 \textit{outlier}
+    nella variabile \textit{Age}, riferibili a studenti con età significativamente superiore rispetto alla
+    distribuzione centrale, 3 \textit{outlier} nella variabile \textit{Work Pressure}, 6 nella variabile
+    \textit{CGPA} (corrispondenti a valori pari a zero) e 2 nella variabile \textit{Job Satisfaction}.
+
+    Per quanto riguarda le variabili categoriche, sono state considerate come valori anomali quelli con
+    una frequenza inferiore all’1\% del totale delle osservazioni. In base a questo criterio, sono stati
+    individuati 31 \textit{outlier} nella variabile \textit{Profession}, 18 nella variabile
+    \textit{Sleep Duration}, 12 nella variabile \textit{Dietary Habits} e 3 nella variabile
+    \textit{Financial Stress}.
+
+    Inoltre, sono state eliminate 35 occorrenze con valore \textit{Others} nella variabile categorica
+    \textit{Degree}, in quanto poco rappresentative e potenzialmente distorsive per l’analisi.
+
+    Complessivamente, il processo di identificazione e rimozione dei valori anomali ha comportato
+    l’eliminazione di 132 osservazioni dal dataset, consentendo di ottenere un insieme di dati più coerente e
+    rappresentativo ai fini delle successive analisi statistiche.
+
+
+    \subsection{Feature engineering}
+
+    \paragraph{Feature Trasformation - Age}
+
+    La variabile continua \textit{Age} è stata discretizzata nella nuova feature \texttt{Age\_group}
+    sulla base dell’analisi della sua distribuzione.
+    Tale scelta è motivata dal fatto che la rappresentazione puramente numerica
+    può amplificare il peso di osservazioni con età più elevate, introducendo effetti distorsivi nella
+    stima del rischio.
+    La categorizzazione dell’età consente invece di ridurre l’influenza di valori anomali, preservando al
+    contempo l’informazione semantica associata alle diverse fasi della vita universitaria. Di seguito il
+    grafico rappresenta il numero di osservazioni per ogni classe.
+
+    \begin{figure}[h!]
+        \centering
+        \includegraphics[width=0.8\textwidth]{images/graphs/distribuzioniAge}
+    \end{figure}
+
+    \paragraph{Feature Transformation - Degree}
+    La variabile \textit{Degree} descrive il livello di istruzione dichiarato dallo studente secondo il sistema educativo del paese di origine del dataset.
+    Poiché tale rappresentazione risulta fortemente dipendente dal contesto accademico indiano e caratterizzata da un’elevata frammentazione delle categorie,
+    è stata effettuata un’operazione di aggregazione in tre macro-categorie,
+    basata esclusivamente sul livello di istruzione e non sul sistema universitario di riferimento.
+
+    In particolare, i valori originali sono stati ricondotti alle seguenti categorie:
+    \begin{itemize}
+        \item \textbf{Diploma}: corrispondente al livello di istruzione secondaria superiore (es. \textit{Class 12});
+        \item \textbf{Titolo di primo livello}: comprendente i titoli di livello bachelor;
+        \item \textbf{Titolo di secondo livello}: comprendente i titoli di livello master e post-graduate.
+    \end{itemize}
+
+    Questa trasformazione consente di ridurre la dipendenza dal contesto accademico specifico del dataset,
+    mantenendo al contempo un’informazione rilevante relativa al livello di istruzione dello studente.
+
+    \paragraph{Feature Transformation - CGPA}
+
+    La variabile \textit{CGPA} è espressa secondo una scala di valutazione specifica del sistema accademico di
+    origine del dataset, nella quale valori più elevati corrispondono a prestazioni accademiche migliori.
+    In particolare, secondo le specifiche del dataset, un valore di $10$ rappresenta il punteggio massimo,
+    mentre un valore di $5$ corrisponde alla soglia minima di superamento.
+
+    Al fine di rendere i valori maggiormente interpretabili nel contesto universitario italiano, la variabile è
+    stata convertita in una rappresentazione su scala trentesimale. La conversione è stata effettuata mediante una
+    trasformazione lineare, definita a partire dai punti di riferimento della scala ($10 \rightarrow 30$ e $5 \rightarrow 18$).
+    La formula applicata è la seguente:
+
+    \begin{equation}
+        \text{CGPA_{30}}  = 2.4 \cdot \text{CGPA} + 6
+    \end{equation}
+
+    Tale trasformazione preserva l’ordine e le proprietà statistiche della variabile originale e non altera la sua capacità
+    predittiva, ma ha esclusivamente una finalità descrittiva e interpretativa.
+
+    Nel dataset finale, la variabile originale \textit{CGPA} è stata sostituita dalla nuova rappresentazione
+    \textit{CGPA\_30}, al fine di evitare ridondanze informative.
+
+
+    \paragraph{Feature Selection}
+    Inizialmente è stata rimossa la feature \textbf {city}: fortemente dipendente dal contesto geografico
+    indiano e quindi non generalizzabile ad altri contesti universitari;
+
+
+    Successivamente, sono state rimosse le feature caratterizzate da una bassa dipendenza dalla variabile target e da
+    distribuzioni anomale:
+
+    \begin{itemize}
+        \item \textbf {Numeriche}: Work Pressure, Job Satisfaction
+        \item \textbf {Categoriali}: Profession
+    \end{itemize}
+
+    \subsection{Feature Scaling}
+    Per garantire che tutte le feature abbiano la stessa importanza, si è deciso di normalizzare
+    le feature numeriche con media 0 e deviazione standard 1 attraverso l'adozione del \textbf{Z-score scaling}.
+    Ciò consente di trasformare i dati in una forma che sia uniforme e comparabile, evitando che le variabili
+    con valori estremi o unità diverse abbiano un impatto sproporzionato.
+    \newline
+    Le feature scalate sono:
+    \newline \textit{Study Satisfaction, Work/Study Hours, Academic Pressure, Financial Stress e CGPA\_30}.
+
+    \subsection{Encoding}
+    Poiché la maggior parte dei modelli di machine learning opera su numeri si è deciso di convertire
+    le variabili categoriche in variabili binarie attraverso l'adozione del \textbf{One-Hot encoder}.
+    Ciò permette al modello di catturare le differenze tra le categorie senza pregiudizi, trattando ognuna
+    come indipendente e riducendo il rischio di interpretare erroneamente le relazioni tra categorie diverse.
+    \newline
+    Le feature trasformate sono:
+    \newline \textit{Gender, Age\_group, Dietary Habits, Family History of Mental Illness, Sleep Duration e Degree\_level}.
 
 \end{document}

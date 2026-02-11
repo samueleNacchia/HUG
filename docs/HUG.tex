@@ -18,6 +18,7 @@
     urlcolor=black,   % I link web diventano blu
     citecolor=black]{hyperref}
 \usepackage{color}
+\usepackage{amsmath}
 
 \geometry{top=2.5cm, bottom=2.5cm, left=2.5cm, right=2.5cm, headheight=40pt}
 
@@ -541,7 +542,7 @@ Corso di Machine Learning - Prof. G. Polese - Prof.ssa L. Caruccio}
     La formula applicata è la seguente:
 
     \begin{equation}
-        \text{CGPA_{30}}  = 2.4 \cdot \text{CGPA} + 6
+        \text{CGPA}_{30} = 2.4 \cdot \text{CGPA} + 6
     \end{equation}
 
     Tale trasformazione preserva l’ordine e le proprietà statistiche della variabile originale e non altera la sua capacità
@@ -581,5 +582,197 @@ Corso di Machine Learning - Prof. G. Polese - Prof.ssa L. Caruccio}
     \newline
     Le feature trasformate sono:
     \newline \textit{Gender, Age\_group, Dietary Habits, Family History of Mental Illness, Sleep Duration e Degree\_level}.
+
+
+
+
+\newpage
+
+
+    \section{Modeling}
+    \subsection{Scelta degli Algoritmi}
+
+
+        Sono stati selezionati due algoritmi di classificazione appartenenti a paradigmi
+        differenti: la \textbf{Logistic Regression} e il \textbf{Random Forest}.
+        La scelta è motivata dalla necessità di bilanciare accuratezza predittiva e trasparenza
+        nell'analisi dei fattori di rischio.
+
+        \paragraph{Logistic Regression}
+            La Logistic Regression rappresenta il modello \textit{baseline} per eccellenza nei problemi di
+            classificazione binaria. Le ragioni della sua inclusione nel progetto sono le seguenti:
+            \begin{itemize}
+                \item \textbf{Interpretabilità:} Attraverso l'analisi dei coefficienti $\beta$,
+                il modello permette di quantificare l'impatto relativo di ogni feature sulla probabilità del target.
+                \item \textbf{Natura Probabilistica:} Il modello restituisce un valore continuo nell'intervallo $[0, 1]$.
+                Questo approccio è fondamentale in ambito psicologico per valutare il grado di confidenza della previsione.
+                \item \textbf{Ottimizzazione:} Il modello beneficia della standardizzazione delle feature effettuata
+                nella pipeline di modelling, garantendo una convergenza efficiente dell'algoritmo di ottimizzazione.
+            \end{itemize}
+
+
+
+    \paragraph{Random Forest}
+    Il Random Forest è un algoritmo di apprendimento supervisionato basato sul principio dell'\textit{ensemble learning}, specificamente seguendo la tecnica del \textit{Bootstrap Aggregating} (o Bagging). Invece di fare affidamento su un singolo modello predittivo, il Random Forest costruisce una vasta collezione di alberi decisionali non correlati per fornire una classificazione più stabile e accurata.
+    L'adozione di questa architettura nel presente progetto è motivata dalle seguenti proprietà avanzate:
+
+    \begin{itemize}
+        \item \textbf{Riduzione della Varianza tramite Bagging:} Ogni albero della foresta viene addestrato su un sottoinsieme casuale dei dati (campionamento con reinserimento). Questo processo assicura che il modello finale non sia eccessivamente influenzato da specifiche anomalie o rumore presenti nel training set.
+        \item \textbf{Feature Randomness:} Durante la creazione di ogni nodo, l'algoritmo seleziona un sottoinsieme casuale di feature. Questa tecnica garantisce la decorrelazione tra gli alberi, aumentando la capacità predittiva globale del sistema.
+        \item \textbf{Stima dell'Importanza delle Feature:} Il modello permette di quantificare l'impatto di variabili come \texttt{Academic\_Pressure} o \texttt{Financial\_Stress}, fornendo una gerarchia chiara dei fattori di rischio rilevati nel dataset.
+    \end{itemize}
+
+    \subsection{Train-Test Split}
+
+        Per valutare in modo robusto la capacità di generalizzazione dei modelli e ridurre il rischio di
+        \textit{overfitting}, è stata adottata la metodologia di \textbf{k-fold cross validation}
+        con $k = 5$.
+        Questa tecnica prevede la suddivisione del dataset in $k$ sottoinsiemi (fold) di dimensione
+        approssimativamente uguale. Per ciascuna iterazione, un fold viene utilizzato come insieme di
+        validazione, mentre i restanti $k-1$ fold costituiscono il training set.
+        Il processo viene ripetuto $k$ volte, consentendo a ciascun sottoinsieme di essere utilizzato
+        esattamente una volta come dati di validazione.
+
+
+    \subsection{Addestramento}
+
+    L’addestramento dei modelli è stato condotto adottando un approccio \textbf{pipeline-based}, al fine di
+    garantire una corretta separazione tra i dati utilizzati per l’apprendimento e quelli impiegati per la
+    validazione, evitando fenomeni di \textit{data leakage}.
+    In particolare, le operazioni di preprocessing (standardizzazione delle feature e codifica delle
+    variabili categoriche) sono state integrate all’interno di una pipeline di
+    \textit{scikit-learn} ed eseguite esclusivamente sui dati di training di ciascun fold durante la
+    cross-validation.
+    Questo approccio assicura che le trasformazioni apprese non siano influenzate dai dati di validazione,
+    preservando la correttezza metodologica del processo di addestramento.
+
+    Per entrambi i modelli è stata inoltre adottata una strategia di \textbf{bilanciamento delle classi}
+    attraverso l’impostazione del parametro \texttt{class\_weight = balanced}, al fine di mitigare l’effetto
+    dello sbilanciamento presente nella variabile target e migliorare la capacità dei modelli di individuare
+    correttamente i casi positivi.
+
+
+    Nel caso del \textbf{Random Forest}, l’addestramento è stato preceduto da una fase di
+    \textbf{ottimizzazione degli iperparametri} mediante \textit{Grid Search} (integrata nel processo di
+    cross-validation), grazie al quale sono state esplorate diverse configurazioni. Gli iperparametri esplorati sono stati:
+    numero di alberi, profondità massima, numero minimo di campioni per foglia. Di seguito le configurazioni ottimali trovate.
+
+
+    \begin{table}[h]
+        \centering
+        \begin{tabular}{lcccc}
+            \hline
+            \textbf{N Estimators} & \textbf{Max Depth} & \textbf{Min Samples Leaf}\\
+            \hline
+            100 & 20 & 5\\
+            \hline
+        \end{tabular}
+
+
+        \caption{Configurazioni ottimali degli iperparametri del Random Forest ottenute tramite Grid Search}
+        \label{tab:dt_hyperparameters}
+    \end{table}
+
+
+
+    Per la \textbf{Logistic Regression}, il processo di addestramento è stato condotto fissando un numero
+    contenuto di iterazioni dell’algoritmo di ottimizzazione. In particolare, sono state effettuate
+    \textbf{15 iterazioni}, in quanto verifiche empiriche preliminari hanno mostrato la convergenza del
+    modello e l’assenza di variazioni apprezzabili nelle prestazioni e nei coefficienti stimati al crescere
+    del numero di iterazioni. Tale scelta permette di contenere il costo computazionale senza compromettere
+    l’affidabilità del modello.
+
+
+% ------------------------------------------
+
+
+    \newpage
+    \section{Conclusioni}
+    L'analisi condotta attraverso la preparation e i due algoritmi di classificazione
+    ha permesso di identificare i fattori più influenti nella previsione della depressione studentesca e di selezionare il modello più performante.
+
+
+    \subsection{Metriche di valutazione}
+    Le metriche selezionate per valutare la qualità dei classificatori sono state:
+    \begin{itemize}
+
+        \item \textbf{Recall:} Misura la capacità del modello di individuare tutti i casi reali di depressione.
+        In ambito medico, è fondamentale massimizzare questa metrica per non ignorare studenti a rischio (pochi falsi negativi).
+
+    \item \textbf{Precision:}  Indica l'affidabilità delle previsioni positive.
+        Una precision alta significa che quando il modello prevede "Depressione",
+        è molto probabile che lo studente sia effettivamente depresso (pochi falsi positivi).
+
+    \end{itemize}
+    \subsection{Valutazioni}
+    L'analisi comparativa dei modelli, riassunta nel grafico di performance, evidenzia che la combinazione
+    \textbf{Logistic Regression} offre le prestazioni migliori in assoluto,
+    raggiungendo una \textit{Precision} del \textbf{84.34\%} e una \textit{Recall} di \textbf{79.55\%}.
+
+
+
+    \begin{figure}[h!]
+        \centering
+        \includegraphics[width=1.0\textwidth]{images/graphs/barre} \\
+    \end{figure}
+
+
+    \subsection{La nostra scelta: Logistic Regression}
+    Alla luce dei risultati ottenuti, il modello selezionato per la fase di deployment è la \textbf{Logistic Regression}
+    addestrata sui dati processati.
+    Questa scelta garantisce il miglior compromesso tra capacità di generalizzazione
+    e affidabilità nelle predizioni positive.
+
+
+    \subsubsection{Analisi dei Coefficienti Beta ($\beta$)}
+    L'analisi dei pesi assegnati dal modello ci permette di comprendere quali variabili influenzano
+    maggiormente la decisione.
+    I coefficienti con valore assoluto più alto indicano i predittori più forti.
+    Di seguito riportiamo le 5 feature più determinanti estratte dal modello finale:
+
+
+    \begin{table}[h!]
+        \centering
+        \caption{Top 5 Feature per impatto sulla predizione (Logistic Regression)}
+        \label{tab:beta_coeffs}
+        \renewcommand{\arraystretch}{1.2}
+        \begin{tabular}{|l|c|c|l|}
+
+            \hline
+            \textbf{Feature} & \textbf{Coeff. ($\beta$)} & \textbf{Odds Ratio}  \\
+            \hline
+            Age\_group (30+) & -1.30 & 0.27 \\
+            Academic Pressure & +1.15 & 3.18 \\
+            Dietary Habits (Unhealthy) & +1.08 & 2.96 \\
+            Financial Stress & +0.81 & 2.26 \\
+            Age\_group (26-29) & -0.53 & 0.58 \\
+            \hline
+
+        \end{tabular}
+    \end{table}
+
+
+
+
+
+
+    \subsubsection{Matrice di Confusione}
+
+    Per valutare gli errori commessi dal modello, riportiamo la Matrice di Confusione.
+    Essa mostra la distribuzione tra predizioni corrette (sulla diagonale principale)
+    ed errori di classificazione.
+
+
+    \begin{figure}[h!]
+        \centering
+        \includegraphics[width=0.6\textwidth]{images/graphs/cmatrix}
+        \label{fig:conf_matrix}
+    \end{figure}
+
+
+    Il modello dimostra una solida capacità di distinguere le classi, minimizzando i Falsi Positivi
+    (alta Precision), aspetto cruciale per evitare di segnalare erroneamente come a rischio studenti che non
+    lo sono.
+
 
 \end{document}

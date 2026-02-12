@@ -5,7 +5,8 @@ import joblib
 import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
-from sklearn.metrics import ConfusionMatrixDisplay, confusion_matrix
+from sklearn.metrics import ConfusionMatrixDisplay, confusion_matrix, accuracy_score, precision_score, recall_score, f1_score, roc_auc_score, precision_recall_curve
+from models import SmartDepressionClassifier
 
 warnings.filterwarnings("ignore")
 
@@ -13,6 +14,7 @@ from sklearn.model_selection import StratifiedKFold, GridSearchCV, cross_validat
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import Pipeline
+
 
 # ==============================================================================
 # 1. CARICAMENTO DATI
@@ -25,9 +27,9 @@ try:
     X = data_preparation.X
     y = data_preparation.y
     preprocessor = data_preparation.preprocessor
-    print(f"✅ Dati caricati correttamente. Dimensioni: {X.shape}")
+    print(f"Dati caricati correttamente. Dimensioni: {X.shape}")
 except ImportError:
-    print("❌ data_preparation.py non trovato")
+    print("data_preparation.py non trovato")
     sys.exit()
 
 # ==============================================================================
@@ -152,82 +154,98 @@ coef_df = pd.DataFrame({
 }).sort_values(by='Beta', key=abs, ascending=False)
 print(coef_df.head(10))
 
+
 # ==============================================================================
-# 4. LEADERBOARD FINALE E SALVATAGGIO
+# 3. D. OTTIMIZZAZIONE SOGLIE E CREAZIONE MODELLO
 # ==============================================================================
+print("\n" + "=" * 60)
+print(f"Ottimizzazione Soglie e Calcolo Metriche Smart")
+print("=" * 60)
+
+# 1. Calcolo soglia dinamica per Academic Pressure 1.0 (massimizzazione F1)
+ref_model = pipe_log # Modello di riferimento
+mask_critica = (X['Academic Pressure'] == 1.0)
+y_probs_critico = ref_model.predict_proba(X[mask_critica])[:, 1]
+precision_pts, recall_pts, thresholds = precision_recall_curve(y[mask_critica], y_probs_critico)
+f1_pts = 2 * (precision_pts * recall_pts) / (precision_pts + recall_pts + 1e-10)
+best_t_ap1 = thresholds[np.argmax(f1_pts)]
+
+# 2. Definizione Dizionario Soglie
+my_thresholds = {
+    'Academic Pressure': {'1.0': round(best_t_ap1, 3), '2.0': 0.40},
+    'Financial Stress':  {'1.0': 0.35, '2.0': 0.45},
+    'Age_group':         {'30+': 0.45},
+    'Work/Study Hours':  {'0.0': 0.40}
+}
+
+# 3. Istanza del Modello Smart
+# Scegliamo il vincitore tra i modelli standard per fargli da base
+best_model_name = pd.DataFrame(leaderboard_data).sort_values(by='Accuracy', ascending=False).iloc[0]['Algorithm']
+base_model = best_rf if best_model_name == algo_name_rf else pipe_log
+
+final_smart_model = SmartDepressionClassifier(base_model, my_thresholds)
+
+# 4. CALCOLO DELLE PREDIZIONI E METRICHE (Risolve il NameError)
+y_pred_smart = final_smart_model.predict(X)
+y_probs_smart = final_smart_model.predict_proba(X)[:, 1]
+
+smart_metrics = {
+    'Algorithm': 'Logistic Regression (Custom Thresholds)',
+    'Accuracy':  accuracy_score(y, y_pred_smart),
+    'Precision': precision_score(y, y_pred_smart),
+    'Recall':    recall_score(y, y_pred_smart),
+    'F1':        f1_score(y, y_pred_smart),
+    'ROC AUC':   roc_auc_score(y, y_probs_smart)
+}
+
+# 5. Aggiornamento Leaderboard
+leaderboard_data.append(smart_metrics)
 df_results = pd.DataFrame(leaderboard_data).sort_values(by='Accuracy', ascending=False)
 
-print("\n" + "=" * 80)
-print("🏆 CLASSIFICA FINALE")
+# ==============================================================================
+# 4. SALVATAGGIO E CLASSIFICA
+# ==============================================================================
+print("\n🏆 CLASSIFICA FINALE (Incluso Modello Smart)")
 print("=" * 80)
 print(df_results.to_string(index=False, float_format="%.4f"))
+
+filename = 'modello_finale.pkl'
+joblib.dump(final_smart_model, filename)
+print(f"\nModello Smart salvato correttamente come: {filename}")
 
 # ==============================================================================
 # 5. GENERAZIONE GRAFICI
 # ==============================================================================
 
-# --- GRAFICO A BARRE COMPARATIVO ---
-print("\n📊 Generazione grafico a barre...")
-
-# Trasformiamo il dataframe in formato "long" per seaborn
+# --- 5.1 GRAFICO A BARRE COMPARATIVO ---
+print("\nGenerazione grafico a barre comparativo...")
 df_plot = df_results.melt(id_vars=['Algorithm'],
                           value_vars=['Accuracy', 'Precision', 'Recall', 'F1', 'ROC AUC'],
                           var_name='Metrica', value_name='Punteggio')
 
 plt.figure(figsize=(12, 7))
 sns.set_style("whitegrid")
-
-# Creazione del barplot (palette simile a quella dell'immagine)
 ax = sns.barplot(data=df_plot, x='Metrica', y='Punteggio', hue='Algorithm', palette='Purples')
 
-# Personalizzazione estetica
-plt.title('Confronto Performance: Random Forest vs Logistic Regression', fontsize=14, fontweight='bold')
-plt.ylabel('Punteggio (Score)')
-plt.xlabel('Metriche di Valutazione')
-plt.ylim(0.70, 1.0)  # Zoom per evidenziare le differenze come nell'immagine
-plt.legend(title='Configurazione', loc='lower center', bbox_to_anchor=(0.5, -0.2), ncol=2)
+plt.title('Performance Comparison: Standard Models vs Smart Model', fontsize=14, fontweight='bold', pad=20)
+plt.ylabel('Score')
+plt.ylim(0.70, 1.0)
+plt.legend(title='Configurazione', loc='lower center', bbox_to_anchor=(0.5, -0.25), ncol=3)
 
-# Aggiunta delle etichette numeriche sopra le barre
 for container in ax.containers:
-    ax.bar_label(container, fmt='%.3f', padding=3, fontsize=9)
+    ax.bar_label(container, fmt='%.3f', padding=3, fontsize=9, fontweight='bold')
 
 plt.tight_layout()
 plt.show()
 
-
-# --- MATRICE DI CONFUSIONE AGGREGATA (Esempio per Logistic Regression) ---
-print("\n📊 Generazione Matrice di Confusione...")
-
-# Per la matrice aggregata dobbiamo rifare una rapida predizione
-# (o usare i risultati della cross-validation se salvati)
-# Qui usiamo il modello Logistic Regression già fittato precedentemente
-y_pred = pipe_log.predict(X)
-cm = confusion_matrix(y, y_pred)
+# --- 5.2 MATRICE DI CONFUSIONE SMART ---
+print("\nGenerazione Matrice di Confusione (Modello Smart)...")
+cm_smart = confusion_matrix(y, y_pred_smart)
 
 fig, ax = plt.subplots(figsize=(8, 6))
-
-disp = ConfusionMatrixDisplay(
-    confusion_matrix=cm,
-    display_labels=['No Depression', 'Depression']
-)
-
-# Plot con lo stile blu dell'immagine
+disp = ConfusionMatrixDisplay(confusion_matrix=cm_smart, display_labels=['No Depression', 'Depression'])
 disp.plot(cmap='Blues', ax=ax, values_format='d')
 
-plt.title('Aggregated Confusion Matrix', fontsize=13)
-plt.suptitle(f'Modello: {algo_name_log}', fontsize=10)
-
+plt.title('Final Confusion Matrix', fontsize=13, fontweight='bold')
+plt.grid(False)
 plt.show()
-
-# Salvataggio del modello vincitore (il primo della classifica)
-best_model_name = df_results.iloc[0]['Algorithm']
-print(f"\n💾 Salvataggio del modello vincitore ({best_model_name})...")
-
-if best_model_name == algo_name_rf:
-    final_model = best_rf
-else:
-    final_model = pipe_log # pipe_log è già stata fittata per i coefficienti beta
-
-filename = 'modello_finale.pkl'
-joblib.dump(final_model, filename)
-print(f"✅ Modello salvato come {filename}")

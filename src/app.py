@@ -3,6 +3,7 @@ import pandas as pd
 import joblib
 import os
 import numpy as np
+from models import SmartDepressionClassifier
 
 # =========================
 # CONFIGURAZIONE PERCORSI
@@ -19,9 +20,9 @@ app = Flask(__name__, template_folder=TEMPLATE_DIR, static_folder=STATIC_DIR)
 model_path = os.path.join(BASE_DIR, 'modello_finale.pkl')
 try:
     model = joblib.load(model_path)
-    print("✅ Modello caricato correttamente.")
+    print("Modello caricato correttamente.")
 except Exception as e:
-    print(f"❌ Errore caricamento modello: {e}")
+    print(f"Errore caricamento modello: {e}")
 
 # =========================
 # ROUTES

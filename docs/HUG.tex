@@ -687,9 +687,9 @@ Corso di Machine Learning - Prof. G. Polese - Prof.ssa L. Caruccio}
 
 
     \newpage
-    \section{Conclusioni}
-    L'analisi condotta attraverso la preparation e i due algoritmi di classificazione
-    ha permesso di identificare i fattori più influenti nella previsione della depressione studentesca e di selezionare il modello più performante.
+    \section{Model Evaluation}
+    L'analisi condotta sui due algoritmi di classificazione ha permesso di identificare i fattori più influenti
+    nella previsione della depressione studentesca e di selezionare il modello più performante.
 
 
     \subsection{Metriche di valutazione}
@@ -699,16 +699,15 @@ Corso di Machine Learning - Prof. G. Polese - Prof.ssa L. Caruccio}
         \item \textbf{Recall:} Misura la capacità del modello di individuare tutti i casi reali di depressione.
         In ambito medico, è fondamentale massimizzare questa metrica per non ignorare studenti a rischio (pochi falsi negativi).
 
-    \item \textbf{Precision:}  Indica l'affidabilità delle previsioni positive.
+        \item \textbf{Precision:}  Indica l'affidabilità delle previsioni positive.
         Una precision alta significa che quando il modello prevede "Depressione",
         è molto probabile che lo studente sia effettivamente depresso (pochi falsi positivi).
 
     \end{itemize}
     \subsection{Valutazioni}
-    L'analisi comparativa dei modelli, riassunta nel grafico di performance, evidenzia che la combinazione
-    \textbf{Logistic Regression} offre le prestazioni migliori in assoluto,
+    L'analisi comparativa dei modelli, riassunta nel grafico di performance, evidenzia che
+    \textbf{Logistic Regression} offre le prestazioni migliori,
     raggiungendo una \textit{Precision} del \textbf{84.34\%} e una \textit{Recall} di \textbf{79.55\%}.
-
 
 
     \begin{figure}[h!]
@@ -718,8 +717,7 @@ Corso di Machine Learning - Prof. G. Polese - Prof.ssa L. Caruccio}
 
 
     \subsection{La nostra scelta: Logistic Regression}
-    Alla luce dei risultati ottenuti, il modello selezionato per la fase di deployment è la \textbf{Logistic Regression}
-    addestrata sui dati processati.
+    Alla luce dei risultati ottenuti, il modello selezionato è stato \textbf{Logistic Regression}.
     Questa scelta garantisce il miglior compromesso tra capacità di generalizzazione
     e affidabilità nelle predizioni positive.
 
@@ -733,7 +731,6 @@ Corso di Machine Learning - Prof. G. Polese - Prof.ssa L. Caruccio}
 
     \begin{table}[h!]
         \centering
-        \caption{Top 5 Feature per impatto sulla predizione (Logistic Regression)}
         \label{tab:beta_coeffs}
         \renewcommand{\arraystretch}{1.2}
         \begin{tabular}{|l|c|c|l|}
@@ -753,26 +750,148 @@ Corso di Machine Learning - Prof. G. Polese - Prof.ssa L. Caruccio}
 
 
 
+    \subsection{Analisi di Robustezza e Ottimizzazione del Modello}
 
+    L'accuratezza globale di un modello di Machine Learning può spesso mascherare lacune critiche in specifici sottogruppi della popolazione.
+    Per garantire l'equità (\textit{Fairness}) e l'affidabilità clinica del sistema, è stata condotta una valutazione \textbf{Slice-Based}.
 
+    \subsubsection{Identificazione dei Blind Spots}
+    L'analisi iniziale è stata eseguita segmentando il dataset in base a caratteristiche demografiche e comportamentali.
+    I risultati hanno evidenziato dei significativi \textbf{Punti Ciechi} (\textit{Blind Spots}), ovvero categorie in cui il modello mostrava una \textit{Recall} estremamente bassa,
+    fallendo nell'identificare la depressione in assenza di fattori di stress esterni evidenti.
+    La seguente figur illustra graficamente i sottogruppi con le performance peggiori.
 
-    \subsubsection{Matrice di Confusione}
-
-    Per valutare gli errori commessi dal modello, riportiamo la Matrice di Confusione.
-    Essa mostra la distribuzione tra predizioni corrette (sulla diagonale principale)
-    ed errori di classificazione.
-
-
-    \begin{figure}[h!]
+    \begin{figure}[htbp]
         \centering
-        \includegraphics[width=0.6\textwidth]{images/graphs/cmatrix}
-        \label{fig:conf_matrix}
+        \includegraphics[width=0.95\textwidth]{images/graphs/worstSlices}
+        \label{fig:worstSlices}
+    \end{figure}
+
+    \newpage
+
+    \subsubsection{Ottimizzazione delle Soglie Decisionali}
+    Per correggere questa distorsione, si è proceduto alla ricerca di una \textbf{Soglia Ottimale} specifica per le \textit{slices} critiche identificate nella fase precedente.
+
+    \paragraph{Modifica soglie del modello e Risultati}\newline
+    A seguito di una calibrazione custom delle soglie del modello per le slices con performance critiche,
+    la rivalutazione ha mostrato un netto recupero della sensibilità nelle categorie precedentemente trascurate.
+    I risultati di questo intervento di ottimizzazione sono visibili nella seguente figura, che può essere confrontata direttamente con la situazione iniziale.
+
+    \begin{figure}[htbp]
+        \centering
+        \includegraphics[width=1\textwidth]{images/graphs/worstSlicesAfterOttimization}
+        \label{fig:worstSlicesAfterOttimization}
+    \end{figure}
+
+    Performance sulle 'Worst Slices' dopo l'ottimizzazione delle soglie. Si nota un significativo miglioramento della Recall nei gruppi critici rispetto al modello Logistic Regression iniziale.
+
+    \newpage
+    \subsubsection{Punti di Forza del Modello}
+    Parallelamente, l'analisi ha confermato l'esistenza di punti di forza in cui il modello raggiunge performance prossime alla perfezione.
+    Questi segmenti corrispondono generalmente a individui soggetti a carichi di stress molto elevati, dove i segnali predittivi sono chiari e dominanti.
+
+    Le \textit{slice} migliori includono tipicamente valori di \textit{Academic Pressure} e \textit{Financial Stress} pari al massimo della scala (5.0).
+    Ciò dimostra come il modello abbia appreso correttamente la correlazione diretta tra stress estremo e patologia, tendendo però a sovra-utilizzarla come principale chiave di lettura.
+    La distribuzione di queste performance eccellenti è riportata di seguito.
+
+    \begin{figure}[htbp]
+        \centering
+        \includegraphics[width=1\textwidth]{images/graphs/bestSlicesAfterOttimization}
+        \label{fig:bestSlicesAfterOttimization}
+    \end{figure}
+
+    Analisi delle 'Best Slices' del modello ottimizzato. I segmenti mostrati raggiungono performance quasi perfette, corrispondenti prevalentemente a scenari di alto stress percepito.
+
+
+    \subsection{Confronto Globale e Validazione Finale}
+    Per validare l'efficacia dell'intero processo di ottimizzazione, è stato realizzato un confronto diretto tra i modelli baseline (\textit{Random Forest},
+    \textit{Logistic Regression} standard) e il modello finale \textbf{Logistic Regression (Custom Thresholds)}.
+    L'esito di questo confronto comparativo è sintetizzato nel grafico sottostante.
+
+    \begin{figure}[htbp]
+        \centering
+        \includegraphics[width=0.8\textwidth]{images/graphs/performanceAfterOttimization}
+        \label{fig:performanceAfterOttimization}
     \end{figure}
 
 
-    Il modello dimostra una solida capacità di distinguere le classi, minimizzando i Falsi Positivi
-    (alta Precision), aspetto cruciale per evitare di segnalare erroneamente come a rischio studenti che non
-    lo sono.
+    Come evidenziato dal grafico, il modello ottimizzato mostra una \textit{Recall} e un \textit{F1-Score} superiori, non solo nelle categorie critiche, ma stabilizzando le performance sull'intero dataset.
+
+    Alla luce dei risultati ottenuti, il modello selezionato per la fase di deployment è \textbf{Logistic Regression (Custom Thresholds)}.
+
+    \newpage
+
+    Infine, per valutare nel dettaglio la tipologia di errori commessi dal modello finale, riportiamo la Matrice di Confusione.
+    Essa mostra la distribuzione tra predizioni corrette (sulla diagonale principale) ed errori di classificazione.
+
+    \begin{figure}[htbp]
+        \centering
+        \includegraphics[width=0.75\textwidth]{images/graphs/finalConfusionMatrix}
+        \label{fig:finalConfusionMatrix}
+    \end{figure}
+
+    Il modello dimostra una solida capacità di distinguere le classi, minimizzando efficacemente i Falsi Negativi (alta Recall).
+    Questa caratteristica è fondamentale in ambito clinico per ridurre il rischio di ignorare studenti che necessitano di supporto, anche a costo di un leggero aumento dei Falsi Positivi.
+
+
+
+% -------------------------------------------------------------------------
+
+
+    \newpage
+    \section{Interfaccia della Demo}
+    \paragraph{Pagina Iniziale}
+
+
+    La pagina di benvenuto presenta un pulsante per accedere ad un questionario.
+
+    \begin{figure}[h]
+        \centering
+        \includegraphics[width=1\textwidth]{images/index}
+        \label{fig:index_demo}
+    \end{figure}
+
+
+    \paragraph{Il Questionario di Input}
+    L'interfaccia di inserimento dati consiste in un modulo da compilare.
+    In seguito è presente un esempio di compilazione del questionario.
+
+    \begin{figure}[h]
+        \centering
+        \includegraphics[width=1\textwidth]{images/form1}
+        \label{fig:form1_demo}
+    \end{figure}
+
+
+
+    \newpage
+    \begin{figure}[h]
+        \centering
+        \rightmargin
+        \includegraphics[width=1\textwidth]{images/form2}
+        \label{fig:form2_demo}
+    \end{figure}
+
+
+    \paragraph{Visualizzazione del Risultato}
+    Una volta completata la compilazione e inviato il modulo, il sistema effettua una chiamata al backend
+    dove risiede il modello di classificazione. \newline Il risultato dell'inferenza viene mostrato in una pagina di output dedicata che presenta:
+
+    \begin{enumerate}
+        \item \textbf{Esito della Classificazione}.
+        \item \textbf{Componente Visiva:} L'interfaccia utilizza una comunicazione visiva per rendere il responso facilmente interpretabile dall'utente finale.
+    \end{enumerate}
+
+
+    In seguito è riportato il risultato relativo alla compilazione del \hyperref[fig:form1_demo] {\underline{form}} visto in precedenza.
+
+
+    \begin{figure}[h]
+        \centering
+        \includegraphics[width=1\textwidth]{images/risultato}
+        \label{fig:risultato_demo}
+    \end{figure}
 
 
 \end{document}
+

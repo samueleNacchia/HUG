@@ -228,6 +228,6 @@ if best_model_name == algo_name_rf:
 else:
     final_model = pipe_log # pipe_log è già stata fittata per i coefficienti beta
 
-filename = 'modello_depressione_finale.pkl'
+filename = 'modello_finale.pkl'
 joblib.dump(final_model, filename)
 print(f"✅ Modello salvato come {filename}")

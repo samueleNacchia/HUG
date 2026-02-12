@@ -1,0 +1,74 @@
+li, a, button {
+    font-weight: normal;
+    font-size: 16px;
+    color: var(--text-color);
+    text-decoration: none;
+}
+
+body.home header,
+body.prediction header {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+}
+
+header {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 30px 10%;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    cursor: pointer;
+    margin-right: auto;
+}
+
+.logo img {
+    width: 150px;
+}
+
+.logo h1 {
+    font-family: var(--font-title);
+    font-weight: 500;
+    font-size: 30px;
+    color: var(--text-color);
+}
+
+.nav__links {
+    list-style: none;
+}
+
+.nav__links li {
+    display: inline-block;
+    padding: 0 20px;
+}
+
+.nav__links li a {
+    font-weight: normal;
+    transition: all 0.3s ease 0s;
+}
+
+.nav__links li a:hover {
+    color: var(--link-hover);
+}
+
+.cta {
+    font-weight: normal;
+    margin-left: 20px;
+    padding: 9px 25px;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease 0s;
+}
+
+.cta:hover {
+    background-color: var(--link-hover);
+}

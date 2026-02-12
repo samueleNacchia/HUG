@@ -1,0 +1,17 @@
+<header>
+    <a href="{{ url_for('home') }}" class="logo">
+        <div>
+            <img src="{{ url_for('static', filename='../static/assets/images/logo-HUG.png') }}" alt="logo">
+        </div>
+
+        <div>
+            <h1>HUG</h1>
+        </div>
+    </a>
+    <nav>
+        <ul class="nav__links">
+            <li><a href="{{ url_for('questionario') }}">Vai al questionario</a></li>
+        </ul>
+    </nav>
+    <a class="cta" href="#">Contatti</a>
+</header>

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HUG - Questionario</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/navbar.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/footer.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/questionario.css') }}">
+</head>
+<body class="questionnaire">
+
+{% include 'partials/navbar.html' %}
+
+<main>
+    <form action="{{ url_for('predict') }}" method="POST" id="questionarioForm">
+
+        <h2>Parliamo di te.</h2>
+
+        <fieldset>
+            <label for="matricola">Matricola:</label>
+            <input type="text" id="matricola" name="matricola" required>
+
+            <label for="gender">Sesso:</label>
+            <select id="gender" name="gender">
+                <option value="Male">Maschio</option>
+                <option value="Female">Femmina</option>
+            </select>
+
+            <label for="age">Età:</label>
+            <select id="age" name="age">
+                <option value="18-21">18-21</option>
+                <option value="22-25">22-25</option>
+                <option value="26-29">26-29</option>
+                <option value="30+">30+</option>
+            </select>
+        </fieldset>
+
+        <fieldset>
+            <label for="academic_pressure">Quanto senti la pressione accademica? (1-5)</label>
+            <input type="number" id="academic_pressure" name="academic_pressure" min="1" max="5" required>
+
+            <label for="study_satisfaction">Quanto sei soddisfatto del tuo percorso di studi? (1-5)</label>
+            <input type="number" id="study_satisfaction" name="study_satisfaction" min="1" max="5" required>
+
+            <label for="financial_stress">Quanto percepisci lo stress finanziario? (1-5)</label>
+            <input type="number" id="financial_stress" name="financial_stress" min="1" max="5" required>
+        </fieldset>
+
+        <fieldset>
+            <label for="degree">Qual è il tuo titolo di studi?</label>
+            <select id="degree" name="degree">
+                <option value="Diploma">Diploma</option>
+                <option value="Titolo_primo_livello">Titolo di Primo livello (Laurea Triennale)</option>
+                <option value="Titolo_secondo_livello">Titolo di Secondo livello (Laurea Magistrale)</option>
+            </select>
+
+            <label for="study_hours">Quante ore studi di media al giorno?</label>
+            <input type="number" id="study_hours" name="study_hours" min="0" max="12" required>
+
+            <label for="cgpa">Qual è la tua media accademica?</label>
+            <input type="number" id="cgpa" name="cgpa" min="18" max="30" required>
+        </fieldset>
+
+        <fieldset>
+            <label for="sleep_duration">Quante ore dormi di media a notte?</label>
+            <select id="sleep_duration" name="sleep_duration">
+                <option value="'Less than 5 hours'">Meno di 5 ore</option>
+                <option value="'5-6 hours'">5-6 ore</option>
+                <option value="'7-8 hours'">7-8 ore</option>
+                <option value="'More than 8 hours'">Più di 8 ore</option>
+            </select>
+
+            <label for="dietary_habits">Come definisci le tue abitudini alimentari?</label>
+            <select id="dietary_habits" name="dietary_habits">
+                <option value="Unhealthy">Malsano</option>
+                <option value="Moderate">Moderato</option>
+                <option value="Healthy">Salutare</option>
+            </select>
+
+            <label for="family_history_mental_illness">Ci sono casi di malattia mentale nella tua famiglia?</label>
+            <select id="family_history_mental_illness" name="family_history_mental_illness">
+                <option value="Yes">Sì</option>
+                <option value="No">No</option>
+            </select>
+        </fieldset>
+
+        <button type="submit">Invia Analisi</button>
+    </form>
+</main>
+
+{% include 'partials/footer.html' %}
+
+</body>
+</html>

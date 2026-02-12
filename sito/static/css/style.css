@@ -1,0 +1,66 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap');
+
+:root {
+    --primary-color: #214061;
+    --text-color: #152A41;
+    --background-color: #EBF1F6;
+    --link-text-color: #ffffff;
+    --link-hover: #00A8E8;
+
+
+    --font-title: 'Playfair Display', serif;
+    --font-body: 'Inter', sanf-serif;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-body);
+    background-color: var(--background-color);
+}
+
+.hero {
+    min-height: 89vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.hero-content {
+    text-align: center;
+    padding: 2rem;
+}
+
+.hero-title {
+    font-family: var(--font-title);
+    font-weight: normal;
+    font-size: 2.2rem;
+    color: var(--text-color);
+    margin-bottom: 1rem;
+}
+
+.hero-description {
+    font-weight: normal;
+    font-size: 1.1rem;
+    color: var(--text-color);
+    margin-bottom: 2rem;
+    color: #555;
+}
+
+.hero-button {
+    font-weight: normal;
+    padding: 9px 25px;
+    background-color: var(--primary-color);
+    color: var(--link-text-color);
+    text-decoration: none;
+    border-radius: 6px;
+    transition: all 0.3s ease 0s;
+}
+
+.hero-button:hover {
+    background-color: var(--link-hover);
+}

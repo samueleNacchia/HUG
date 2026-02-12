@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Esito HUG</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/navbar.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/footer.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/risultato.css') }}">
+</head>
+<body class="prediction">
+
+{% include 'partials/navbar.html' %}
+
+<main>
+    <div class="result">
+        <div class="result-container">
+            <h2 class="prediction-title" style="color: {{ color }};">
+                {{ prediction }}
+            </h2>
+
+            <p class="prob-text">Probabilità di rischio</p>
+
+            <div class="skill">
+                <div class="outer">
+                    <div class="inner">
+                        <div id="number">
+                            65%
+                        </div>
+                    </div>
+                </div>
+                <svg xmlns="http://www.w3.org/2000/svg"
+                     version="1.1" width="160px" height="160px">
+                    <defs>
+                        <lineargradient id="GradientColor">
+                            <stop offset="0%"
+                                  stop-color="#DA22FF">
+                            </stop>
+                            <stop offset="100%"
+                                  stop-color="#9733EE">
+                            </stop>
+                        </lineargradient>
+                    </defs>
+                    <circle id="progress-circle" cx="80" cy="80" r="70" stroke-linecap="round"></circle>
+                </svg>
+            </div>
+
+            <br>
+            <a href="/questionario" class="btn-back">Nuova Analisi</a>
+        </div>
+    </div>
+</main>
+
+{% include 'partials/footer.html' %}
+
+<script>
+    let number = document.getElementById('number');
+    let circle = document.getElementById('progress-circle');
+
+    let target = parseFloat({{ prob }});
+    let counter = 0;
+    let circumference = 440;
+
+    // Funzione per interpolare tra verde e rosso
+    function getColor(percent) {
+        let r, g, b = 0;
+
+        if (percent <= 50) {
+            // Verde (0,200,0) -> Giallo (200,200,0)
+            r = Math.floor(200 * (percent / 50));
+            g = 200;
+        } else if (percent <= 80) {
+            // Giallo (200,200,0) -> Arancio (255,120,0)
+            let p = (percent - 50) / 30; // da 0 a 1
+            r = Math.floor(200 + 55 * p);
+            g = Math.floor(200 - 80 * p);
+        } else {
+            // Arancio (255,120,0) -> Rosso (255,0,0)
+            let p = (percent - 80) / 20; // da 0 a 1
+            r = 255;
+            g = Math.floor(120 * (1 - p));
+        }
+
+        return `rgb(${r},${g},${b})`;
+    }
+
+    const interval = setInterval(() => {
+        counter += 0.5;
+        if (counter >= target) {
+            counter = target;
+            clearInterval(interval);
+        }
+
+        number.innerHTML = `${counter.toFixed(1)}%`;
+
+        let offset = circumference - (circumference * counter / 100);
+        circle.style.strokeDashoffset = offset;
+
+        // Aggiorniamo il colore in base alla percentuale
+        circle.style.stroke = getColor(counter);
+
+    }, 20);
+</script>
+
+
+</body>
+</html>

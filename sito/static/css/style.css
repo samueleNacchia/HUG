@@ -24,7 +24,7 @@ body {
 }
 
 .hero {
-    min-height: 89vh;
+    min-height: 95vh;
     display: flex;
     align-items: center;
     justify-content: center;
